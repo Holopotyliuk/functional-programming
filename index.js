@@ -37,6 +37,7 @@ let rectangles = [
     }
 ]
 const flow = (...fn) => rectangles => fn.reduce((res, fn) => fn(res), rectangles)
+const compose = (...fn) => rectangles => fn.reduceRight((res, fn) => fn(res), rectangles)
 
 let small = r => r.width < 10;
 let hasColor = c => r => r.color == c;
@@ -68,6 +69,14 @@ let sumPerimeterWithRedRectangle = flow(
     reduce(calcPerimeter),
 )
 console.log('sum perimeter', sumPerimeterWithRedRectangle(rectangles))
+
+let maxAreaWithRedSquare = compose(
+    lodashMax,
+    map(calcArea),
+    filter(isSquare),
+    filter(hasColor('red')),
+)
+console.log('max area red square', maxAreaWithRedSquare(rectangles))
 
 let And = (f1, f2) => rectangl => f1(rectangl) && f2(rectangl);
 let selectRedSquare = rectangles
