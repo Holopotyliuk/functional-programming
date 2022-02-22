@@ -72,3 +72,23 @@ let sumPerimeterWithRedRectangle = flow(
     lodashSum
 )
 console.log('sum perimeter', sumPerimeterWithRedRectangle(rectangles))
+
+let And = (f1, f2) => rectangl => f1(rectangl) && f2(rectangl);
+let selectRedSquare = rectangles
+    .filter(And(isSquare, hasColor('red')))
+console.log('and', selectRedSquare)
+
+let or = (f1, f2) => rectangl => f1(rectangl) || f2(rectangl);
+let squareOrRedRectangle = rectangles
+    .filter(or(isSquare, hasColor('red')))
+console.log('or', squareOrRedRectangle)
+
+let all = (...fn) => rectangl => fn.every(f => f(rectangl))
+let selectWhereAllTrue = rectangles
+    .filter(all(isSquare, small, hasColor('red')))
+console.log('all', selectWhereAllTrue)
+
+let any = (...fn) => rectangl => fn.some(f => f(rectangl))
+let selectWhereAnyTrue = rectangles
+    .filter(any(isSquare, small, hasColor('red')))
+console.log('any',selectWhereAnyTrue)
