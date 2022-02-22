@@ -1,9 +1,4 @@
-let flow = require('lodash/fp/flow');
-let lodashFilter = require('lodash/fp/filter');
-let lodashMap = require('lodash/fp/map')
-let lodashSum = require('lodash/fp/sum')
 let lodashMax = require('lodash/fp/max');
-const { F } = require('lodash/fp');
 let rectangles = [
     {
         width: 10,
@@ -41,35 +36,36 @@ let rectangles = [
         color: 'red'
     }
 ]
+const flow = (...fn) => rectangles => fn.reduce((res, fn) => fn(res), rectangles)
+
 let small = r => r.width < 10;
 let hasColor = c => r => r.color == c;
 let isSquare = r => r.width == r.height;
+let isRectangle = r => r.width !== r.height;
 let calcArea = r => r.width * r.height;
 let calcPerimeter = r => (r.width + r.height) * 2;
 
-let selectSquare = fn => rectangles => rectangles.filter(fn)
-console.log('filter', selectSquare(isSquare)(rectangles))
+let filter = fn => rectangles => rectangles.filter(fn)
+console.log('Filter', filter(isSquare)(rectangles))
 
-let calcAreas = fn => rectangles => rectangles.map(fn)
-console.log('map', calcAreas(calcArea)(rectangles))
+let map = fn => rectangles => rectangles.map(fn)
+console.log('map', map(calcArea)(rectangles))
 
-let sumCalcArea = fn => rectangles => rectangles.reduce((sum, r) => {
-    return sum + fn(r);
-}, 0)
-console.log('reduce', sumCalcArea(calcArea)(rectangles))
+let reduce=fn=>rectangles=>rectangles.reduce((sum,r)=>sum+fn(r),0)
+console.log('reduce', reduce(calcArea)(rectangles))
 
 let maxAreaWithBlackSquare = flow(
-    lodashFilter(hasColor('black')),
-    lodashFilter(isSquare),
-    lodashMap(calcArea),
+    filter(hasColor('black')),
+    filter(isSquare),
+    map(calcArea),
     lodashMax
 )
 console.log('max area', maxAreaWithBlackSquare(rectangles))
 
 let sumPerimeterWithRedRectangle = flow(
-    lodashFilter(hasColor('red')),
-    lodashMap(calcPerimeter),
-    lodashSum
+    filter(hasColor('red')),
+    filter(isRectangle),
+    reduce(calcPerimeter),
 )
 console.log('sum perimeter', sumPerimeterWithRedRectangle(rectangles))
 
@@ -79,9 +75,9 @@ let selectRedSquare = rectangles
 console.log('and', selectRedSquare)
 
 let or = (f1, f2) => rectangl => f1(rectangl) || f2(rectangl);
-let squareOrRedRectangle = rectangles
+let selectSquareOrRedRectangle = rectangles
     .filter(or(isSquare, hasColor('red')))
-console.log('or', squareOrRedRectangle)
+console.log('or', selectSquareOrRedRectangle)
 
 let all = (...fn) => rectangl => fn.every(f => f(rectangl))
 let selectWhereAllTrue = rectangles
@@ -91,4 +87,4 @@ console.log('all', selectWhereAllTrue)
 let any = (...fn) => rectangl => fn.some(f => f(rectangl))
 let selectWhereAnyTrue = rectangles
     .filter(any(isSquare, small, hasColor('red')))
-console.log('any',selectWhereAnyTrue)
+console.log('any', selectWhereAnyTrue)
